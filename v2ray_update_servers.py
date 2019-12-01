@@ -1,0 +1,37 @@
+#!/bin/python
+
+# 1.ignore certain jsons.
+# 2.remove useless jsons.
+
+from urllib import parse
+import requests
+import os
+import subprocess
+
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+urls = []
+with open(base_dir + "/urls.txt", "r") as url_file:
+    urls.extend(url_file.readlines())
+
+for url in urls:
+    try:
+        url = url.strip(' \r\n\t')
+        print("Started to fetch content of {0}".format(url))
+        urlpath = url.split('?')[0]
+        params = dict(parse.parse_qsl(parse.urlsplit(url).query))
+        print(urlpath)
+        print(params)
+        response = requests.get(urlpath, params);
+        if response.status_code != 200:
+            print("Failed to fetch the content of {0}".format(url))
+            continue;
+        print(response.text)
+        with open(base_dir + "/sub.txt", "w") as encoded_file:
+            encoded_file.write(response.text)
+        p = subprocess.Popen("cat {0}/sub.txt | base64 -d | {0}/vmess2json.py --parse_all".format(base_dir), shell=True,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+    except:
+        print("some errors happened")
