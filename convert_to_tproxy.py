@@ -23,7 +23,7 @@ def convert_to_tproxy(filepath, destpath):
     result_data['outbounds'].insert(0, original_data['outbounds'][0])
     result_data['outbounds'][0]['streamSettings']['sockopt'] = {'mark' : 255}
     with open(destpath, 'w') as original_file:
-        json.dump(result_data, original_file)
+        json.dump(result_data, original_file, indent=4)
 
 if len(sys.argv) == 1:
     for filename in os.listdir(base_dir):

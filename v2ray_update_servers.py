@@ -7,9 +7,16 @@ from urllib import parse
 import requests
 import os
 import subprocess
+import shutil
+import time
 
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
+old_jsons = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f)) and f.endswith(".json")]
+for json in old_jsons:
+    os.remove(os.path.join(base_dir, json))
+    #shutil.move(os.path.join(base_dir, json), "/tmp")
+
 urls = []
 with open(base_dir + "/urls.txt", "r") as url_file:
     urls.extend(url_file.readlines())
@@ -22,7 +29,7 @@ for url in urls:
         params = dict(parse.parse_qsl(parse.urlsplit(url).query))
         print(urlpath)
         print(params)
-        response = requests.get(urlpath, params);
+        response = requests.get(urlpath, params, timeout=10.0);
         if response.status_code != 200:
             print("Failed to fetch the content of {0}".format(url))
             continue;
@@ -35,3 +42,14 @@ for url in urls:
                              stderr=subprocess.PIPE)
     except:
         print("some errors happened")
+
+
+# convert_to_tproxy
+# wait for vmess2json.py to finish its work
+time.sleep(0.1)
+subprocess.run(["{}/convert_to_tproxy.py".format(base_dir)])
+
+# copy private jsons
+private_jsons = [f for f in os.listdir(os.path.join(base_dir, "private")) if os.path.isfile(os.path.join(base_dir, "private", f)) and f.endswith(".json")]
+for json in private_jsons:
+    shutil.copy(os.path.join(base_dir, "private", json), base_dir)
