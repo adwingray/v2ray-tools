@@ -10,8 +10,21 @@ import subprocess
 import shutil
 import time
 
+class cd:
+    """Context manager for changing the current working directory"""
+    def __init__(self, newPath):
+        self.newPath = os.path.expanduser(newPath)
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
+
+
+#base_dir = os.path.dirname(os.path.abspath(__file__))
+base_dir = "/home/adwin/Tools/vmess2json"
 old_jsons = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f)) and f.endswith(".json")]
 for json in old_jsons:
     os.remove(os.path.join(base_dir, json))
@@ -36,10 +49,11 @@ for url in urls:
         print(response.text)
         with open(base_dir + "/sub.txt", "w") as encoded_file:
             encoded_file.write(response.text)
-        p = subprocess.Popen("cat {0}/sub.txt | base64 -d | {0}/vmess2json.py --parse_all".format(base_dir), shell=True,
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+        with cd(base_dir):
+            p = subprocess.Popen("cat {0}/sub.txt | base64 -d | {0}/vmess2json.py --parse_all".format(base_dir), shell=True,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
     except:
         print("some errors happened")
 
