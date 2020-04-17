@@ -1,10 +1,5 @@
 #!/usr/bin/bash
 
-sysctl -w net.ipv4.ip_forward=1
-
-# 设置策略路由
-ip rule add fwmark 1 table 100
-ip route add local 0.0.0.0/0 dev lo table 100
 
 LOCAL_IP=$(ip addr | grep inet | grep wlp2s0 | awk -F' ' '{print $2}' | awk -F'.' '{print $1"."$2".0.0/16"}')
 echo $LOCAL_IP

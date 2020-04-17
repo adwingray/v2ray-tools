@@ -84,22 +84,6 @@
   },
   "routing": {
     "domainStrategy": "IPOnDemand",
-    "balancers": [
-        {
-            "tag": "group-1",
-            "selector": [
-                "proxy-1"
-            ],
-            "strategy": "latency",
-            "interval": 60,
-            "totalMeasures": 2,
-            "delay": 1,
-            "timeout": 6,
-            "tolerance": 300,
-            "probeTarget": "tls:www.google.com:443",
-            "probeContent": "HEAD / HTTP/1.1\r\n\r\n"
-        }
-    ],
     "rules": [
       {
         "type": "field",
@@ -134,7 +118,7 @@
           "8.8.8.8",
           "1.1.1.1"
         ],
-        "balancerTag": "group-1"
+        "outboundTag": "proxy"
       },
       {
         "type": "field",
@@ -162,11 +146,6 @@
           "geosite:cn"
         ],
         "outboundTag": "direct"
-      },
-      {
-        "type": "field",
-        "network": "udp,tcp",
-        "balancerTag": "group-1"
       }
     ]
   }
