@@ -12,7 +12,7 @@ import sys
 base_dir = "/home/adwin/Tools/vmess2json"
 
 example_data = None
-with open(os.path.join(base_dir, "tproxy.example"), 'r') as example_file:
+with open(os.path.join(base_dir, "tproxy.example.backup"), 'r') as example_file:
     example_data = json.load(example_file)
 
 def convert_to_tproxy(filepath, destpath):

@@ -90,14 +90,13 @@
             "selector": [
                 "proxy-1"
             ],
-            "strategy": "latency",
-            "interval": 60,
-            "totalMeasures": 2,
-            "delay": 1,
-            "timeout": 6,
-            "tolerance": 300,
-            "probeTarget": "tls:www.google.com:443",
-            "probeContent": "HEAD / HTTP/1.1\r\n\r\n"
+            "strategy": "optimal",
+            "optimal_strategy_config": {
+              "timeout": 1000,
+              "interval": 30000,
+              "url": "https://www.google.co.jp/",
+              "count": 4
+            }
         }
     ],
     "rules": [

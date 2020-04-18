@@ -36,6 +36,7 @@ example_data = None
 with open(base_dir + "/tproxy.example", 'r') as example_file:
     example_data = json.load(example_file)
 
+
 def convert_to_balancer(filename):
     with open(os.path.join(base_dir, 'balancers', "{}.json".format(filename)), 'w') as ultimate_file:
         ultimate_data = copy.deepcopy(example_data)
@@ -61,6 +62,9 @@ urls = None
 with open(base_dir + "/urls.txt", "r") as url_file:
     urls = json.load(url_file)['subscription']
 
+headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+
 for name, url in urls.items():
     try:
         url = url.strip(' \r\n\t')
@@ -69,7 +73,8 @@ for name, url in urls.items():
         params = dict(parse.parse_qsl(parse.urlsplit(url).query))
         print(urlpath)
         print(params)
-        response = requests.get(urlpath, params, timeout=10.0);
+        #response = requests.get(urlpath, params, timeout=10.0, headers=headers)
+        response = requests.get(urlpath, params, timeout=10.0)
         if response.status_code != 200:
             print("Failed to fetch the content of {0}".format(url))
             continue;
