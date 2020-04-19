@@ -29,7 +29,9 @@ with open(base_dir + "/ultimate.json", 'w') as ultimate_file:
             ultimate_data['outbounds'].insert(0, original_data['outbounds'][0])
             ultimate_data['outbounds'][0]['streamSettings']['sockopt'] = {'mark' : 255}
             ultimate_data['outbounds'][0]['tag'] = tag
-            if original_data['outbounds'][0]['settings']['vnext'][0]['address'] not in ultimate_data['dns']['servers'][-1]['domains']:
-                ultimate_data['dns']['servers'][-1]['domains'].append(original_data['outbounds'][0]['settings']['vnext'][0]['address'])
+            if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in ultimate_data['dns']['servers'][-1]['domains']:
+                ultimate_data['dns']['servers'][-1]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
+            if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in ultimate_data['routing']['rules'][-2]['domain']:
+                ultimate_data['routing']['rules'][-2]['domain'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
             ultimate_data['routing']['balancers'][0]['selector'].append(tag)
     json.dump(ultimate_data, ultimate_file, indent=4)

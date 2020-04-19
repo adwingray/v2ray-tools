@@ -138,7 +138,8 @@
       {
         "type": "field",
         "domain": [
-          "geosite:category-ads-all"
+          "geosite:category-ads-all",
+          "domain:zhihu.com"
         ],
         "outboundTag": "block"
       },
