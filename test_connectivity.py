@@ -9,8 +9,7 @@ from multiprocessing import Process, Queue
 
 from flask import Flask
 
-#base_dir = os.path.dirname(os.path.abspath(__file__))
-base_dir = "/home/adwin/Tools/vmess2json"
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def run_local_server(q):
     app = Flask(__name__)

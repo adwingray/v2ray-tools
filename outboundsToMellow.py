@@ -8,8 +8,8 @@ import sys
 
 
 
-# base_dir = os.path.dirname(os.path.abspath(__file__))
-base_dir = "/home/adwin/Tools/vmess2json"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+# base_dir = "/home/adwin/Tools/vmess2json"
 
 
 def convert_to_mellow(filepath):
