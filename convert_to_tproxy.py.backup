@@ -42,3 +42,9 @@ elif len(sys.argv) == 2:
             if filename.endswith(".json"):
                 print(base_dir + '/' + filename)
                 convert_to_tproxy(os.path.join(sys.argv[1], filename), base_dir + '/' + filename)
+
+elif len(sys.argv) == 4:
+    example_filepath = sys.argv[2]
+    save_dir = sys.argv[3]
+    with open(example_filepath, 'r') as example_file:
+        example_data = json.load(example_file)

@@ -91,11 +91,11 @@
                 "proxy-1"
             ],
             "strategy": "optimal",
-            "optimal_strategy_config": {
-              "timeout": 1000,
+            "optimalSettings": {
+              "timeout": 500,
               "interval": 30000,
-              "url": "https://www.google.co.jp/",
-              "count": 4
+              "url": "https://news.ycombinator.com",
+              "count": 2
             }
         }
     ],
@@ -139,7 +139,8 @@
         "type": "field",
         "domain": [
           "geosite:category-ads-all",
-          "domain:zhihu.com"
+          "domain:zhihu.com",
+          "domain:youtube.com"
         ],
         "outboundTag": "block"
       },

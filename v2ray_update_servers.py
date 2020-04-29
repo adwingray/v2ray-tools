@@ -30,7 +30,27 @@ base_dir = "/home/adwin/Tools/vmess2json"
 old_jsons = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f)) and f.endswith(".json")]
 for j in old_jsons:
     os.remove(os.path.join(base_dir, j))
+old_jsons = [f for f in os.listdir(os.path.join(base_dir, "tmp")) if os.path.isfile(os.path.join(base_dir, "tmp", f)) and f.endswith(".json")]
+for j in old_jsons:
+    os.remove(os.path.join(base_dir, "tmp", j))
     #shutil.move(os.path.join(base_dir, json), "/tmp")
+
+test_conn_example_data = None
+with open(os.path.join(base_dir, "test_connectivity.example"), 'r') as example_file:
+    test_conn_example_data = json.load(example_file)
+
+def convert_to_test_conn(filepath, destpath):
+    global test_conn_example_data
+    result_data = copy.deepcopy(test_conn_example_data)
+    original_data = None
+    with open(filepath, 'r') as original_file:
+        original_data = json.load(original_file)
+    result_data['outbounds'].insert(0, original_data['outbounds'][0])
+    result_data['outbounds'][0]['tag'] = "proxy"
+    if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in result_data['dns']['servers'][-1]['domains']:
+        result_data['dns']['servers'][-1]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
+    with open(destpath, 'w') as original_file:
+        json.dump(result_data, original_file, indent=4)
 
 example_data = None
 with open(base_dir + "/tproxy.example", 'r') as example_file:
@@ -103,7 +123,10 @@ for name, url in urls.items():
 # convert_to_tproxy
 # wait for vmess2json.py to finish its work
 subprocess.run(["{}/convert_to_tproxy.py.backup".format(base_dir), os.path.join(base_dir, 'tmp')])
-time.sleep(0.1)
+time.sleep(1)
+for filename in os.listdir(os.path.join(base_dir, "tmp")):
+    if filename.endswith(".json"):
+        convert_to_test_conn(os.path.join(base_dir, "tmp", filename), os.path.join(base_dir, "test_connectivity_configs", filename))
 
 # copy private jsons
 private_jsons = [f for f in os.listdir(os.path.join(base_dir, "private")) if os.path.isfile(os.path.join(base_dir, "private", f)) and f.endswith(".json")]

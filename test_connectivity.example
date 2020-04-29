@@ -1,0 +1,99 @@
+{
+  "inbounds": [
+    {
+      "port": 10800,
+      "protocol": "socks",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls"]
+      },
+      "settings": {
+        "auth": "noauth"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "direct",
+      "protocol": "freedom",
+      "settings": {
+        "domainStrategy": "UseIP"
+      }
+    },
+    {
+      "tag": "block",
+      "protocol": "blackhole",
+      "settings": {
+        "response": {
+          "type": "http"
+        }
+      }
+    },
+    {
+      "tag": "dns-out",
+      "protocol": "dns"
+    }
+  ],
+  "dns": {
+    "servers": [
+      "1.0.0.1",
+      "9.9.9.9",
+      "8.8.8.8",
+      "1.1.1.1",
+      "114.114.114.114",
+      {
+        "address": "223.5.5.5",
+        "port": 53,
+        "domains": [
+          "geosite:cn",
+          "domain:ntp.org"
+        ]
+      }
+    ]
+  },
+  "routing": {
+    "domainStrategy": "IPOnDemand",
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": [
+          "transparent"
+        ],
+        "port": 53,
+        "outboundTag": "dns-out"
+      },
+      {
+        "type": "field",
+        "inboundTag": [
+          "transparent"
+        ],
+        "port": 123,
+        "network": "udp",
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "223.5.5.5",
+          "114.114.114.114"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "1.0.0.1",
+          "9.9.9.9",
+          "8.8.8.8",
+          "1.1.1.1"
+        ],
+        "outboundTag": "proxy"
+      },
+      {
+        "type": "field",
+        "protocol":["bittorrent"],
+        "outboundTag": "direct"
+      }
+    ]
+  }
+}
