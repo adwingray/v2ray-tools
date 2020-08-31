@@ -138,9 +138,7 @@
       {
         "type": "field",
         "domain": [
-          "geosite:category-ads-all",
-          "domain:zhihu.com",
-          "domain:youtube.com"
+          "geosite:category-ads-all"
         ],
         "outboundTag": "block"
       },

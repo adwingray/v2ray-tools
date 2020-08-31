@@ -31,6 +31,17 @@
       "settings": {
         "auth": "noauth"
       }
+    },
+    {
+      "port": 1081,
+      "protocol": "http",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls"]
+      },
+      "settings": {
+        "timeout": 0
+      }
     }
   ],
   "outbounds": [

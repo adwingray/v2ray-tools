@@ -25,8 +25,8 @@ class cd:
         os.chdir(self.savedPath)
 
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-# base_dir = "/home/adwin/Tools/vmess2json"
+# base_dir = os.path.dirname(os.path.abspath(__file__))
+base_dir = "/home/adwin/Tools/vmess2json"
 old_jsons = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f)) and f.endswith(".json")]
 for j in old_jsons:
     os.remove(os.path.join(base_dir, j))
