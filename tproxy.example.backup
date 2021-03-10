@@ -78,9 +78,6 @@
   ],
   "dns": {
     "servers": [
-      "1.1.1.1",
-      "8.8.8.8",
-      "114.114.114.114",
       {
         "address": "223.5.5.5",
         "port": 53,
@@ -88,7 +85,32 @@
           "geosite:cn",
           "domain:ntp.org"
         ]
-      }
+      },
+      {
+        "address": "114.114.114.114",
+        "port": 53,
+        "domains": [
+          "geosite:cn",
+          "domain:ntp.org"
+        ]
+      },
+      {
+        "address": "1.1.1.1",
+        "port": 53,
+        "domains": [
+          "geosite:geolocation-!cn"
+        ]
+      },
+      {
+        "address": "8.8.8.8",
+        "port": 53,
+        "domains": [
+          "geosite:geolocation-!cn"
+        ]
+      },
+      "1.0.0.1",
+      "8.8.4.4"
+
     ]
   },
   "routing": {
@@ -122,10 +144,11 @@
       {
         "type": "field",
         "ip": [
+          "1.1.1.1",
           "1.0.0.1",
-          "9.9.9.9",
           "8.8.8.8",
-          "1.1.1.1"
+          "8.8.4.4"
+          
         ],
         "outboundTag": "proxy"
       },
