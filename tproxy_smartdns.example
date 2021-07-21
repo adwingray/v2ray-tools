@@ -65,53 +65,19 @@
           "type": "http"
         }
       }
-    },
-    {
-      "tag": "dns-out",
-      "protocol": "dns",
-      "streamSettings": {
-        "sockopt": {
-          "mark": 255
-        }
-      }
     }
   ],
-  "dns": {
-    "servers": [
-      "1.1.1.1",
-      "8.8.8.8",
-      "1.0.0.1",
-      "8.8.4.4",
-      {
-        "address": "223.5.5.5",
-        "port": 53,
-        "domains": [
-          "geosite:cn",
-          "domain:ntp.org"
-        ]
-      },
-      {
-        "address": "114.114.114.114",
-        "port": 53,
-        "domains": [
-          "geosite:cn",
-          "domain:ntp.org"
-        ]
-      }
-    ]
-  },
   "routing": {
     "domainStrategy": "IPOnDemand",
     "rules": [
       {
         "type": "field",
-        "ip": [
-          "1.1.1.1",
-          "1.0.0.1",
-          "8.8.8.8",
-          "8.8.4.4"
+        "inboundTag": [
+          "transparent"
         ],
-        "outboundTag": "proxy"
+        "port": 123,
+        "network": "udp",
+        "outboundTag": "direct"
       },
       {
         "type": "field",
@@ -123,20 +89,13 @@
       },
       {
         "type": "field",
-        "inboundTag": [
-          "transparent"
+        "ip": [
+          "1.1.1.1",
+          "1.0.0.1",
+          "8.8.8.8",
+          "8.8.4.4"
         ],
-        "port": 53,
-        "outboundTag": "dns-out"
-      },
-      {
-        "type": "field",
-        "inboundTag": [
-          "transparent"
-        ],
-        "port": 123,
-        "network": "udp",
-        "outboundTag": "direct"
+        "outboundTag": "proxy"
       },
       {
         "type": "field",

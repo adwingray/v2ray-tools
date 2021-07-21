@@ -24,10 +24,10 @@ def convert_to_tproxy(filepath, destpath):
     result_data['outbounds'].insert(0, original_data['outbounds'][0])
     result_data['outbounds'][0]['streamSettings']['sockopt'] = {'mark' : 255}
     result_data['outbounds'][0]['tag'] = "proxy"
-    if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in result_data['dns']['servers'][0]['domains']:
-        result_data['dns']['servers'][0]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
-    if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in result_data['dns']['servers'][1]['domains']:
-        result_data['dns']['servers'][1]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
+    if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in result_data['dns']['servers'][-1]['domains']:
+        result_data['dns']['servers'][-1]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
+    if ("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address']) not in result_data['dns']['servers'][-2]['domains']:
+        result_data['dns']['servers'][-2]['domains'].append("full:" + original_data['outbounds'][0]['settings']['vnext'][0]['address'])
     with open(destpath, 'w') as original_file:
         json.dump(result_data, original_file, indent=4)
 
@@ -38,6 +38,8 @@ if len(sys.argv) == 1:
             try:
                 convert_to_tproxy(os.path.join(base_dir, filename), os.path.join(base_dir, filename))
             except json.decoder.JSONDecodeError:
+                continue
+            except KeyError:
                 continue
             else:
                 continue
@@ -51,6 +53,8 @@ elif len(sys.argv) == 2:
                 try:
                     convert_to_tproxy(os.path.join(sys.argv[1], filename), os.path.join(base_dir, filename))
                 except json.decoder.JSONDecodeError:
+                    continue
+                except KeyError:
                     continue
                 else:
                     continue
