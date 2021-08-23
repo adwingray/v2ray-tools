@@ -12,7 +12,7 @@ set i 1
 for s in $json_dir/*.json
 	if test $chosen -eq $i
 		printf "You've chosen %s\n" $s
-		cp $s /etc/v2ray/config.json
+		cp $s /etc/v2ray/conf.d/06_outbounds.json
 		systemctl restart v2ray
 		exit
 	end
