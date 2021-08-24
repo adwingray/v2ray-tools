@@ -1,0 +1,2 @@
+drill always uses 202.114.96.1 and 223.5.5.5 for nameservers.
+It does not care about v2ray dns module's nameservers.
