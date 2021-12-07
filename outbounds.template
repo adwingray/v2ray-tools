@@ -1,6 +1,43 @@
 {
   "outbounds": [
     {
+      "protocol": "vmess",
+      "settings": {
+        "vnext": [
+          {
+            "address": "shcn2.tomlink.icu",
+            "port": 61000,
+            "users": [
+              {
+                "email": "user@v2ray.com",
+                "id": "caae081a-6d6b-443e-b9d8-42a145c890ed",
+                "alterId": 1,
+                "security": "auto"
+              }
+            ]
+          }
+        ],
+        "domainStrategy": "UseIP"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "connectionReuse": true,
+          "path": "",
+          "headers": {
+            "Host": ""
+          }
+        },
+        "sockopt": {
+          "mark": 255
+        }
+      },
+      "mux": {
+        "enabled": true
+      },
+      "tag": "proxy"
+    },
+    {
       "tag": "direct",
       "protocol": "freedom",
       "settings": {

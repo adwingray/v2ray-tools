@@ -11,6 +11,7 @@ import binascii
 import traceback
 import urllib.request
 import urllib.parse
+import requests
 
 vmscheme = "vmess://"
 ssscheme = "ss://"
@@ -613,10 +614,11 @@ def fill_dns(_c):
 def read_subscribe(sub_url):
     print("Reading from subscribe ...")
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
-    req =urllib.request.Request(url=sub_url,headers=headers)
-    with urllib.request.urlopen(req) as response:
-        _subs = response.read()
-        return base64.b64decode(_subs + b'=' * (-len(_subs) % 4)).decode().splitlines()
+    resp = requests.get(sub_url, headers=headers)
+    #  req =urllib.request.Request(url=sub_url,headers=headers)
+    #  with urllib.request.urlopen(req) as response:
+    _subs = resp.content
+    return base64.b64decode(_subs + b'=' * (-len(_subs) % 4)).decode().splitlines()
 
 def select_multiple(lines):
     vmesses = []
