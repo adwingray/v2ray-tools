@@ -1,7 +1,4 @@
-#!/bin/python
-
-# 1.ignore certain jsons.
-# 2.remove useless jsons.
+#!/bin/env python
 
 import os
 import json
@@ -20,43 +17,6 @@ config = {
     "outbound_template": 
         {
           "outbounds": [
-            {
-              "protocol": "vmess",
-              "settings": {
-                "vnext": [
-                  {
-                    "address": "shcn2.tomlink.icu",
-                    "port": 61000,
-                    "users": [
-                      {
-                        "email": "user@v2ray.com",
-                        "id": "caae081a-6d6b-443e-b9d8-42a145c890ed",
-                        "alterId": 1,
-                        "security": "auto"
-                      }
-                    ]
-                  }
-                ],
-                "domainStrategy": "UseIP"
-              },
-              "streamSettings": {
-                "network": "ws",
-                "wsSettings": {
-                  "connectionReuse": True,
-                  "path": "",
-                  "headers": {
-                    "Host": ""
-                  }
-                },
-                "sockopt": {
-                  "mark": 255
-                }
-              },
-              "mux": {
-                "enabled": True
-              },
-              "tag": "proxy"
-            },
             {
               "tag": "direct",
               "protocol": "freedom",
@@ -92,29 +52,15 @@ config = {
 }
 
 
-
-
-
 def convert_to_tproxy(prev_conf):
     tproxy_outbound = copy.deepcopy(config['outbound_template'])
-    tproxy_outbound['outbounds'][0] = prev_conf['outbounds'][0]
+    tproxy_outbound['outbounds'].insert(0, prev_conf['outbounds'][0])
     if 'streamSettings' not in tproxy_outbound['outbounds'][0]:
         tproxy_outbound['outbounds'][0]['streamSettings'] = {}
     tproxy_outbound['outbounds'][0]['streamSettings']['sockopt'] = {'mark' : 255}
     tproxy_outbound['outbounds'][0]['tag'] = "proxy"
     tproxy_outbound['outbounds'][0]['settings']['domainStrategy'] = "UseIP"
     return tproxy_outbound
-
-#  previous_jsons = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f)) and f.endswith(".json")]
-#  for j in previous_jsons:
-        #  shutil.move(os.path.join(base_dir, j), os.path.join(base_dir, 'tmp', j))
-
-
-#  urls = {}
-#  with open(base_dir + "/urls.txt", "r") as url_file:
-    #  urls = json.load(url_file)['subscription']
-
-#  headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
 
 def download_and_convert_subscription(sub_name, url):
@@ -132,19 +78,6 @@ def download_and_convert_subscription(sub_name, url):
             os.makedirs(config['outbounds_dir'], exist_ok=True)
             with open(os.path.join(config['outbounds_dir'], name), "w") as f:
                 json.dump(convert_to_tproxy(full_json), f, indent=2)
-
-
-#  for _, url in config['urls'].items():
-
-
-# if failed to update, move old jsons back
-#  if len([f for f in os.listdir(base_dir) if f.endswith(".json")]) < 10:
-    #  for j in previous_jsons:
-            #  shutil.move(os.path.join(base_dir, 'tmp', j), os.path.join(base_dir, j))
-#  else:
-    #  # Delete old jsons if success
-    #  for j in previous_jsons:
-        #  os.remove(os.path.join(base_dir, 'tmp', j))
 
 def main():
     conf = configparser.ConfigParser()
@@ -180,9 +113,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-        
-
-
-    
-
