@@ -25,5 +25,9 @@
           buildInputs = with pkgs; [ poetry ];
           inputsFrom = builtins.attrValues self.packages.${system};
         };
+
+        overlay = final: prev: {
+          v2t = self.packages.${system}.${packageName};
+        };
       });
 }
