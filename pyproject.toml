@@ -4,13 +4,26 @@ version = "0.0.1"
 description = "Update subscriptions and convert outbounds to tproxy and change node for v2ray."
 authors = ["AdwinKing <jin2000112014@gmail.com>"]
 license = "MIT"
+repository = "https://github.com/adwingray/v2ray-tools"
+packages = [
+    { include = "vmess2json.py" },
+    { include = "v2t.py" },
+]
+include = ["outbounds.template", "conf.d", "v2t.conf", "README.md"]
+
+
+[tool.poetry.scripts]
+v2t = 'v2t:main'
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
 # Can't install. Copy the file for now.
 # vmess2json = { git = "https://github.com/boypt/vmess2json.git", branch = "master" }
 
+
 [tool.poetry.dev-dependencies]
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

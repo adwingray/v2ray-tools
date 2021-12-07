@@ -146,8 +146,7 @@ def download_and_convert_subscription(sub_name, url):
     #  for j in previous_jsons:
         #  os.remove(os.path.join(base_dir, 'tmp', j))
 
-
-if __name__ == "__main__":
+def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
     config['outbounds_dir'] = conf['GENERAL']['OutboundsDir']
@@ -177,6 +176,10 @@ if __name__ == "__main__":
         shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), "/etc/v2ray/conf.d/06_outbounds.json")
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
+
+
+if __name__ == "__main__":
+    main()
 
         
 
