@@ -106,7 +106,7 @@ def main():
             print(i, " :", v)
         choice = int(input("Please choose node by number: "))
         #  os.remove("/etc/v2ray/conf.d/06_outbounds.json")
-        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), "/etc/v2ray/conf.d/06_outbounds.json")
+        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), "/etc/v2ray/06_outbounds.json")
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
 
