@@ -83,6 +83,7 @@ def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
     config['outbounds_dir'] = conf['GENERAL']['OutboundsDir']
+    config['config_dir'] = conf['GENERAL']['ConfigDir']
     config['urls'] = conf['SUBSCRIPTION']
 
     parser = argparse.ArgumentParser(description="update v2ray subscription or change node")
@@ -106,7 +107,7 @@ def main():
             print(i, " :", v)
         choice = int(input("Please choose node by number: "))
         #  os.remove("/etc/v2ray/conf.d/06_outbounds.json")
-        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), "/etc/v2ray/06_outbounds.json")
+        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), os.path.join(config['config_dir'], "06_outbounds.json"))
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
 
