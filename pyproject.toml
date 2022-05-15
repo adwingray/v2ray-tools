@@ -9,7 +9,7 @@ packages = [
     { include = "vmess2json.py" },
     { include = "v2t.py" },
 ]
-include = ["conf.d", "v2t.conf", "README.md"]
+include = ["conf.d/*", "v2t.conf", "README.md"]
 
 
 [tool.poetry.scripts]
