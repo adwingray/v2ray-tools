@@ -100,7 +100,11 @@ def main():
     if option.update:   
         print(config['urls'])
         for key in config['urls']:
-            download_and_convert_subscription(key, str(config['urls'][key]))
+            try:
+                download_and_convert_subscription(key, str(config['urls'][key]))
+            except:
+                print("Error happened when downloading subscription")
+
     if option.choose:
         out_files = os.listdir(config['outbounds_dir'])
         for i, v in enumerate(out_files):
