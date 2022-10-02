@@ -79,6 +79,31 @@ def download_and_convert_subscription(sub_name, url):
             with open(os.path.join(config['outbounds_dir'], name), "w") as f:
                 json.dump(convert_to_tproxy(full_json), f, indent=2)
 
+def set_direct_dns_for_outbound(outbound_file, dns_file):
+    with open(outbound_file) as f:
+        outbound = json.load(f)
+        domain = None
+        if 'vnext' in outbound['outbounds'][0]['settings']:
+            domain = outbound['outbounds'][0]['settings']['vnext'][0]['address']
+        elif 'servers' in outbound['outbounds'][0]['settings']:
+            domain = outbound['outbounds'][0]['settings']['servers'][0]['address']
+
+        if domain is None:
+            print("No domain found in outbound. Check format changes.")
+            exit(1)
+
+        dns = None
+        with open(dns_file) as f:
+            dns = json.load(f)
+            dns['dns']['servers'][-1]['domains'][1] = "domain:" + domain
+        with open(dns_file, 'w') as f:
+            json.dump(dns, f, indent=2)
+        print(dns)
+
+
+
+    
+
 def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
@@ -111,7 +136,10 @@ def main():
             print(i, " :", v)
         choice = int(input("Please choose node by number: "))
         #  os.remove("/etc/v2ray/conf.d/06_outbounds.json")
-        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), os.path.join(config['config_dir'], "06_outbounds.json"))
+        dest_outbound_path = os.path.join(config['config_dir'], "06_outbounds.json")
+        dest_dns_path = os.path.join(config['config_dir'], "02_dns.json")
+        shutil.copy(os.path.join(config['outbounds_dir'], out_files[choice]), dest_outbound_path)
+        set_direct_dns_for_outbound(dest_outbound_path, dest_dns_path)
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
 
