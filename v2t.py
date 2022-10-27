@@ -100,7 +100,7 @@ def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
     config['outbounds_dir'] = conf['GENERAL']['OutboundsDir']
-    config['config_dir'] = conf['GENERAL']['ConfigDir']
+    config['config_file'] = conf['GENERAL']['ConfigFile']
     config['urls'] = conf['SUBSCRIPTION']
 
     parser = argparse.ArgumentParser(description="update v2ray subscription or change node")
@@ -142,7 +142,8 @@ def main():
         # Merge them
         v2ray_config |= outbound
         set_direct_dns_for_outbound(v2ray_config['outbounds'], v2ray_config['dns'])
-        with open(os.path.join(config['config_dir'], "config.json"), "w") as f:
+        os.makedirs(os.path.join(os.path.dirname(config['config_file'])), exist_ok=True)
+        with open(config['config_file'], "w") as f:
             json.dump(v2ray_config, f, indent=2)
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
