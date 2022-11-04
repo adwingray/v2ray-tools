@@ -100,8 +100,9 @@ def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
     config['outbounds_dir'] = conf['GENERAL']['OutboundsDir']
-    config['config_file'] = conf['GENERAL']['ConfigFile']
+    config['dest_config_file'] = conf['GENERAL']['DestConfigFile']
     config['urls'] = conf['SUBSCRIPTION']
+    config['template_config_file'] = conf['GENERAL']['TemplateConfigFile']
 
     parser = argparse.ArgumentParser(description="update v2ray subscription or change node")
     parser.add_argument('-u', '--update',
@@ -131,8 +132,13 @@ def main():
 
         # Load the full template
         v2ray_config = {}
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")) as f:
-            v2ray_config = json.load(f)
+        if config['template_config_file'] == "":
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")) as f:
+                v2ray_config = json.load(f)
+        else:
+            with open(config['template_config_file']) as f:
+                v2ray_config = json.load(f)
+
 
         # Load chosen outbound
         outbound = {}
@@ -142,8 +148,8 @@ def main():
         # Merge them
         v2ray_config |= outbound
         set_direct_dns_for_outbound(v2ray_config['outbounds'], v2ray_config['dns'])
-        os.makedirs(os.path.join(os.path.dirname(config['config_file'])), exist_ok=True)
-        with open(config['config_file'], "w") as f:
+        os.makedirs(os.path.join(os.path.dirname(config['dest_config_file'])), exist_ok=True)
+        with open(config['dest_config_file'], "w") as f:
             json.dump(v2ray_config, f, indent=2)
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
