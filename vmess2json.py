@@ -14,6 +14,7 @@ import urllib.parse
 
 vmscheme = "vmess://"
 ssscheme = "ss://"
+trojanscheme = "trojan://"
 
 TPL = {}
 TPL["CLIENT"] = """
@@ -294,15 +295,67 @@ TPL["out_ss"] = """
 }
 """
 
+TPL["out_trojan"] = """
+{
+    "address": "",
+    "password": "",
+    "port": 0
+}
+"""
 
 def parseLink(link):
     if link.startswith(ssscheme):
         return parseSs(link)
     elif link.startswith(vmscheme):
         return parseVmess(link)
+    elif link.startswith(trojanscheme):
+        return parseTrojan(link)
     else:
         print("ERROR: This script supports only vmess://(N/NG) and ss:// links")
+        print(f"unsupported link: {link}")
         return None
+
+def parseTrojan(trojan_link):
+    RETOBJ = {
+        "v": "2",
+        "ps": "",
+        "add": "",
+        "port": "",
+        "id": "",
+        "aid": "",
+        "net": "trojan",
+        "type": "",
+        "host": "",
+        "path": "",
+        "tls": ""
+    }
+    if trojan_link.startswith(trojanscheme):
+        info = trojan_link[len(trojanscheme):]
+
+        if info.rfind("#") > 0:
+            info, _ps = info.split("#", 2)
+            RETOBJ["ps"] = urllib.parse.unquote(_ps)
+
+        if info.find("@") < 0:
+            print(f"ERROR: trojan link format error - {trojan_link}")
+            return RETOBJ
+        else:
+            atidx = info.find("@")
+            password = urllib.parse.unquote(info[:atidx])
+            
+            colon_idx = info.find(":")
+            addr = info[atidx+1:colon_idx]
+
+            port = info[colon_idx+1:]
+
+            if info.find("?") > 0:
+                question_idx = info.find("?")
+                port = info[colon_idx+1: question_idx]
+
+        RETOBJ["add"] = addr
+        RETOBJ["port"] = port
+        RETOBJ["id"] = password
+        return RETOBJ
 
 def parseSs(sslink):
     RETOBJ = {
@@ -312,7 +365,7 @@ def parseSs(sslink):
         "port": "",
         "id": "",
         "aid": "",
-        "net": "shadowsocks",
+        "net": "trojan",
         "type": "",
         "host": "",
         "path": "",
@@ -423,6 +476,22 @@ def fill_shadowsocks(_c, _v):
 
     return _c
 
+def fill_trojan(_c, _v):
+    _ss = load_TPL("out_trojan")
+    _ss["address"] = _v["add"]
+    _ss["port"] = int(_v["port"])
+    _ss["password"] = _v["id"]
+
+    _outbound = _c["outbounds"][0]
+    _outbound["protocol"] = "trojan"
+    _outbound["settings"]["servers"] = [_ss]
+
+    del _outbound["settings"]["vnext"]
+    del _outbound["streamSettings"]
+    del _outbound["mux"]
+
+    return _c
+
 def fill_tcp_http(_c, _v):
     tcps = load_TPL("http")
     tcps["header"]["type"] = _v["type"]
@@ -469,6 +538,8 @@ def vmess2client(_t, _v):
     _type = _v["type"]
 
     if _net == "shadowsocks":
+        return fill_shadowsocks(_t, _v)
+    elif _net == "trojan":
         return fill_shadowsocks(_t, _v)
 
     _c = fill_basic(_t, _v)
