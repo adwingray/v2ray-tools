@@ -151,7 +151,11 @@ def main():
         os.makedirs(os.path.join(os.path.dirname(config['dest_config_file'])), exist_ok=True)
         with open(config['dest_config_file'], "w") as f:
             json.dump(v2ray_config, f, indent=2)
+        subprocess.run(["systemctl stop cgproxy"], shell=True)
+        time.sleep(0.5)
         subprocess.run(["systemctl restart v2ray"], shell=True)
+        time.sleep(0.5)
+        subprocess.run(["systemctl start cgproxy"], shell=True)
         time.sleep(0.5)
 
 
