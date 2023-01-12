@@ -7,6 +7,8 @@ import configparser
 import argparse
 import subprocess
 import time
+import shutil
+import datetime
 
 from vmess2json import *
 
@@ -92,14 +94,34 @@ def set_direct_dns_for_outbound(outbound, dns):
     dns['servers'][-1]['domains'][1] = "domain:" + domain
     print(dns)
 
+class GcStore:
+    def __init__(self, path, max_size):
+        os.makedirs(path, exist_ok=True)
+        self.path = path 
+        self.max_size = max_size
 
+    def keys(self):
+        return os.listdir(self.path)
 
-    
+    def insert(self, key, value):
+        # Check whether capacity is full
+        keys = self.keys()
+        if len(keys) > self.max_size:
+            keys.sort(reverse=True)
+            for i in range(self.max_size, len(keys)):
+                os.remove(os.path.join(self.path, keys[i]))
+
+        # Insert new pair
+        with open(os.path.join(self.path, key), 'w') as f:
+            f.write(value)
+
 
 def main():
     conf = configparser.ConfigParser()
     conf.read("/etc/v2t.conf")
     config['outbounds_dir'] = conf['GENERAL']['OutboundsDir']
+    config['generations_dir'] = conf['GENERAL']['GenerationsDir']
+    config['generations_max'] = int(conf['GENERAL']['GenerationsMax'])
     config['dest_config_file'] = conf['GENERAL']['DestConfigFile']
     config['urls'] = conf['SUBSCRIPTION']
     config['template_config_file'] = conf['GENERAL']['TemplateConfigFile']
@@ -113,6 +135,10 @@ def main():
                         action="store_true",
                         default=False,
                         help="choose one node from local nodes")
+    parser.add_argument('-r', '--rollback',
+                        action="store_true",
+                        default=False,
+                        help="rollback to previous configs")
 
     option = parser.parse_args()
     if option.update:   
@@ -139,24 +165,52 @@ def main():
             with open(config['template_config_file']) as f:
                 v2ray_config = json.load(f)
 
-
         # Load chosen outbound
         outbound = {}
         with open(os.path.join(config['outbounds_dir'], out_files[choice])) as f:
             outbound = json.load(f)
 
-        # Merge them
+        # Merge them to get a full config
         v2ray_config |= outbound
         set_direct_dns_for_outbound(v2ray_config['outbounds'], v2ray_config['dns'])
+        config_str = json.dumps(v2ray_config, indent=2)
+
+        # Add new config to generations
+        generations = GcStore(config['generations_dir'], config['generations_max'])
+        current = datetime.datetime.now()
+        filename = current.strftime("%Y-%m-%d_%H:%M:%S")
+        generations.insert(filename, config_str)
+
+        # Put config to destination
         os.makedirs(os.path.join(os.path.dirname(config['dest_config_file'])), exist_ok=True)
-        with open(config['dest_config_file'], "w") as f:
-            json.dump(v2ray_config, f, indent=2)
+        shutil.copyfile(os.path.join(config['generations_dir'], filename), config['dest_config_file'])
         subprocess.run(["systemctl stop cgproxy"], shell=True)
         time.sleep(0.5)
         subprocess.run(["systemctl restart v2ray"], shell=True)
         time.sleep(0.5)
         subprocess.run(["systemctl start cgproxy"], shell=True)
         time.sleep(0.5)
+    if option.rollback:
+        # generations are full json configs.
+        generations = GcStore(config['generations_dir'], config['generations_max'])
+        out_files = generations.keys()
+        out_files.sort()
+        for i, v in enumerate(out_files):
+            print(i, " :", v)
+        choice = int(input("Please choose node by number: "))
+
+        # Copy config.
+        shutil.copyfile(os.path.join(config['generations_dir'], out_files[choice]), config['dest_config_file'])
+
+        # Restart to make it take effect.
+        subprocess.run(["systemctl stop cgproxy"], shell=True)
+        time.sleep(0.5)
+        subprocess.run(["systemctl restart v2ray"], shell=True)
+        time.sleep(0.5)
+        subprocess.run(["systemctl start cgproxy"], shell=True)
+        time.sleep(0.5)
+
+
 
 
 if __name__ == "__main__":
