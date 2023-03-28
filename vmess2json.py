@@ -11,6 +11,8 @@ import binascii
 import traceback
 import urllib.request
 import urllib.parse
+from urllib.parse import urlparse
+from urllib.parse import parse_qs 
 
 vmscheme = "vmess://"
 ssscheme = "ss://"
@@ -311,7 +313,7 @@ def parseLink(link):
     elif link.startswith(trojanscheme):
         return parseTrojan(link)
     else:
-        print("ERROR: This script supports only vmess://(N/NG) and ss:// links")
+        print("ERROR: This script supports only vmess://(N/NG), trojan:// and ss:// links")
         print(f"unsupported link: {link}")
         return None
 
@@ -327,35 +329,36 @@ def parseTrojan(trojan_link):
         "type": "",
         "host": "",
         "path": "",
-        "tls": ""
+        "tls": {
+            "network": "tcp",
+            "security": "tls",
+            "tcpSettings": {
+                "header": {
+                    "type": "none",
+                }
+            },
+            "tlsSettings": {
+                "allowInsecure": True,
+                "fingerprint": "",
+                "serverName": ""
+            }
+        }
     }
-    if trojan_link.startswith(trojanscheme):
-        info = trojan_link[len(trojanscheme):]
 
-        if info.rfind("#") > 0:
-            info, _ps = info.split("#", 2)
-            RETOBJ["ps"] = urllib.parse.unquote(_ps)
+    o = urlparse(trojan_link)
+    if o.scheme != "trojan":
+        print(f"ERROR: trojan link format error - {trojan_link}")
+        exit()
 
-        if info.find("@") < 0:
-            print(f"ERROR: trojan link format error - {trojan_link}")
-            return RETOBJ
-        else:
-            atidx = info.find("@")
-            password = urllib.parse.unquote(info[:atidx])
-            
-            colon_idx = info.find(":")
-            addr = info[atidx+1:colon_idx]
+    RETOBJ["ps"] = urllib.parse.unquote(o.fragment)
+    RETOBJ["add"] = o.hostname
+    RETOBJ["port"] = o.port
+    RETOBJ["id"] = o.username 
 
-            port = info[colon_idx+1:]
-
-            if info.find("?") > 0:
-                question_idx = info.find("?")
-                port = info[colon_idx+1: question_idx]
-
-        RETOBJ["add"] = addr
-        RETOBJ["port"] = port
-        RETOBJ["id"] = password
-        return RETOBJ
+    query = parse_qs(o.query)
+    if 'sni' in query:
+        RETOBJ["tls"]["tlsSettings"]["serverName"] = query['sni'][0]
+    return RETOBJ
 
 def parseSs(sslink):
     RETOBJ = {
@@ -365,7 +368,7 @@ def parseSs(sslink):
         "port": "",
         "id": "",
         "aid": "",
-        "net": "trojan",
+        "net": "shadowsocks",
         "type": "",
         "host": "",
         "path": "",
@@ -485,10 +488,9 @@ def fill_trojan(_c, _v):
     _outbound = _c["outbounds"][0]
     _outbound["protocol"] = "trojan"
     _outbound["settings"]["servers"] = [_ss]
+    _outbound["streamSettings"] = _v["tls"]
 
     del _outbound["settings"]["vnext"]
-    del _outbound["streamSettings"]
-    del _outbound["mux"]
 
     return _c
 
@@ -540,7 +542,7 @@ def vmess2client(_t, _v):
     if _net == "shadowsocks":
         return fill_shadowsocks(_t, _v)
     elif _net == "trojan":
-        return fill_shadowsocks(_t, _v)
+        return fill_trojan(_t, _v)
 
     _c = fill_basic(_t, _v)
 
