@@ -18,36 +18,6 @@ config = {
     "outbound_template": 
         {
           "outbounds": [
-            {
-              "tag": "direct",
-              "protocol": "freedom",
-              "settings": {
-                "domainStrategy": "UseIP"
-              },
-              "streamSettings": {
-                "sockopt": {
-                  "mark": 255
-                }
-              }
-            },
-            {
-              "tag": "block",
-              "protocol": "blackhole",
-              "settings": {
-                "response": {
-                  "type": "http"
-                }
-              }
-            },
-            {
-              "tag": "dns-out",
-              "protocol": "dns",
-              "streamSettings": {
-                "sockopt": {
-                  "mark": 255
-                }
-              }
-            }
           ]
         },
 }
@@ -163,6 +133,7 @@ def main():
                 v2ray_config = json.load(f)
         else:
             with open(config['template_config_file']) as f:
+                print(config['template_config_file'])
                 v2ray_config = json.load(f)
 
         # Load chosen outbound
@@ -171,7 +142,7 @@ def main():
             outbound = json.load(f)
 
         # Merge them to get a full config
-        v2ray_config |= outbound
+        v2ray_config['outbounds'].insert(0, outbound['outbounds'][0])
         set_direct_dns_for_outbound(v2ray_config['outbounds'], v2ray_config['dns'])
         config_str = json.dumps(v2ray_config, indent=2)
 
